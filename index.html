@@ -859,7 +859,7 @@ function showToast(msg, duration) {
       var AudioContext = window.AudioContext || window.webkitAudioContext;
       var actx = new AudioContext();
       var masterGain = actx.createGain();
-      masterGain.gain.value = 0.028;
+      masterGain.gain.value = 0.06;
       masterGain.connect(actx.destination);
 
       var notes = [
@@ -903,7 +903,7 @@ function showToast(msg, duration) {
         for (var i = 0; i < patterns.length; i++) {
           var noteIdx = patterns[i][0], pan = patterns[i][1];
           var t = offset + i * step;
-          playChime(notes[noteIdx], t, step + 0.8, 0.022, pan);
+          playChime(notes[noteIdx], t, step + 0.8, 0.04, pan);
         }
       }
 
