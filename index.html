@@ -660,61 +660,88 @@
   });
 })();
 
-// ── Music Toggle ──
+// ── Music ──
 (function() {
   const btn = document.getElementById('musicBtn');
-  let audio = null;
-  let playing = false;
+  let playing = true; // 默认开启
+  let ambient = null;
 
-  // Attempt to load a calm ambient audio
-  // Using a gentle synth pad generated via OscillatorNode as fallback
   function createAmbientAudio() {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       const actx = new AudioContext();
 
-      // Create a gentle ambient drone — not Stardew Valley, but stays in the mood
-      const gain = actx.createGain();
-      gain.gain.value = 0.04;
-      gain.connect(actx.destination);
+      const masterGain = actx.createGain();
+      masterGain.gain.value = 0.028;
+      masterGain.connect(actx.destination);
 
-      const playNote = (freq, startTime, duration, vol) => {
-        const osc = actx.createOscillator();
+      // ── Cheerful space theme: bright major pentatonic, light and floaty ──
+      const notes = [
+        261.63, 293.66, 329.63, 392.00, 440.00, // C4 D4 E4 G4 A4
+        523.25, 587.33, 659.25, 783.99, 880.00, // C5 D5 E5 G5 A5
+      ];
+
+      const playChime = (freq, startTime, duration, vol, pan) => {
+        // Main tone — triangle wave for warmth
+        const osc1 = actx.createOscillator();
+        osc1.type = 'triangle';
+        osc1.frequency.value = freq;
+
+        // Detuned companion for shimmer
+        const osc2 = actx.createOscillator();
+        osc2.type = 'sine';
+        osc2.frequency.value = freq * 2.003;
+
         const g = actx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
+        const p = actx.createStereoPanner();
+        if (p.pan) p.pan.value = pan || 0;
+
         g.gain.setValueAtTime(0, startTime);
-        g.gain.linearRampToValueAtTime(vol, startTime + 0.8);
-        g.gain.linearRampToValueAtTime(vol * 0.6, startTime + duration * 0.7);
+        g.gain.linearRampToValueAtTime(vol * 0.7, startTime + 0.15);
+        g.gain.setValueAtTime(vol * 0.7, startTime + duration * 0.5);
         g.gain.linearRampToValueAtTime(0, startTime + duration);
-        osc.connect(g);
-        g.connect(actx.destination);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
+
+        osc1.connect(g);
+        osc2.connect(g);
+        g.connect(p);
+        p.connect(masterGain);
+
+        osc1.start(startTime);
+        osc1.stop(startTime + duration + 0.1);
+        osc2.start(startTime);
+        osc2.stop(startTime + duration + 0.1);
       };
 
-      // A gentle, slow pentatonic loop — something that fades into the background
-      const notes = [130.81, 164.81, 196.00, 220.00, 261.63, 329.63, 392.00];
-      const loopDuration = 24; // seconds per loop
+      const loopDuration = 16;
       const now = actx.currentTime;
 
       function scheduleLoop(offset) {
-        for (let i = 0; i < notes.length; i++) {
-          const t = offset + i * (loopDuration / notes.length);
-          playNote(notes[i], t, loopDuration / notes.length + 1.5, 0.025);
+        const patterns = [
+          [0, -0.3], [2, 0.2], [4, -0.2], [5, 0.3],
+          [7, 0.1], [4, -0.2], [2, 0.3], [0, -0.1],
+          [3, 0.2], [5, -0.3], [7, 0], [8, 0.2],
+          [6, -0.2], [9, 0.1], [5, 0.3], [3, -0.2],
+          [1, 0.3], [3, -0.1], [6, 0], [8, -0.3],
+          [9, 0.1], [7, -0.2], [4, 0.2], [2, -0.1],
+        ];
+
+        const step = loopDuration / patterns.length;
+        for (let i = 0; i < patterns.length; i++) {
+          const [noteIdx, pan] = patterns[i];
+          const t = offset + i * step;
+          const dur = step + 0.8;
+          playChime(notes[noteIdx], t, dur, 0.022, pan);
         }
       }
 
-      // Schedule a few loops ahead
-      for (let l = 0; l < 20; l++) {
+      for (let l = 0; l < 30; l++) {
         scheduleLoop(now + l * loopDuration);
       }
 
-      // Re-schedule periodically (every ~10 loops)
       const rescheduleMs = loopDuration * 10 * 1000;
       const interval = setInterval(() => {
         if (actx.state === 'closed') { clearInterval(interval); return; }
-        scheduleLoop(actx.currentTime + loopDuration * 18);
+        scheduleLoop(actx.currentTime + loopDuration * 28);
       }, rescheduleMs);
 
       return { ctx: actx, cleanup: () => { clearInterval(interval); actx.close(); } };
@@ -723,25 +750,51 @@
     }
   }
 
-  let ambient = null;
-
-  btn.addEventListener('click', () => {
-    if (playing) {
-      if (ambient) { ambient.cleanup(); ambient = null; }
-      playing = false;
-      btn.classList.remove('playing');
-      btn.textContent = '♪';
-      btn.title = '音乐已关闭';
+  function startMusic() {
+    if (ambient) {
+      if (ambient.ctx.state === 'suspended') ambient.ctx.resume();
     } else {
-      // Respect autoplay policy — create on user gesture
       ambient = createAmbientAudio();
-      if (ambient) {
-        playing = true;
-        btn.classList.add('playing');
-        btn.textContent = '♫';
-        btn.title = '音乐播放中 — 点击关闭';
-      }
     }
+    if (ambient) {
+      playing = true;
+      btn.classList.add('playing');
+      btn.textContent = '♫';
+      btn.title = '音乐播放中 — 点击关闭';
+    }
+  }
+
+  function stopMusic() {
+    if (ambient) { ambient.cleanup(); ambient = null; }
+    playing = false;
+    btn.classList.remove('playing');
+    btn.textContent = '♪';
+    btn.title = '音乐已关闭';
+  }
+
+  // 尝试自动播放（大多数浏览器会暂停 AudioContext，等用户交互后恢复）
+  ambient = createAmbientAudio();
+  if (ambient) {
+    btn.classList.add('playing');
+    btn.textContent = '♫';
+    btn.title = '音乐播放中 — 点击关闭';
+
+    const resumeOnInteraction = () => {
+      if (ambient && ambient.ctx.state === 'suspended') {
+        ambient.ctx.resume().then(() => { playing = true; });
+      }
+    };
+    document.addEventListener('click', resumeOnInteraction, { once: true });
+    document.addEventListener('touchstart', resumeOnInteraction, { once: true });
+    document.addEventListener('scroll', resumeOnInteraction, { once: true });
+    document.addEventListener('wheel', resumeOnInteraction, { once: true });
+  }
+
+  // 按钮切换
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (playing) { stopMusic(); }
+    else { startMusic(); }
   });
 })();
 </script>
