@@ -1211,18 +1211,23 @@ function showToast(msg, duration) {
     // Treat flies out
     setTimeout(function() {
       var treat = document.createElement('span');
-      treat.textContent = isMooncake ? '🥮' : '🍙';
       var animName = isMooncake ? 'mooncake-arc' : 'zongzi-arc';
-      treat.style.cssText = 'position:fixed;font-size:16px;pointer-events:none;z-index:49;'
+      treat.style.cssText = 'position:fixed;pointer-events:none;z-index:49;'
         + 'left:' + (rect.left + 16) + 'px;top:' + (rect.top + 8) + 'px;'
         + 'animation:' + animName + ' 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;';
+      if (isMooncake) {
+        treat.textContent = '🥮';
+        treat.style.fontSize = '16px';
+      } else {
+        treat.innerHTML = '🌿<b style="font-family:Zpix,monospace;font-size:13px;color:#d4a574;">粽</b>';
+      }
       document.body.appendChild(treat);
       setTimeout(function() { treat.remove(); }, 2000);
     }, 400);
 
     var msg = isMooncake
       ? '🐰🥮 玉兔丢了一块月饼下来\n（中秋节还早，先接着吧）'
-      : '🐰🍙 玉兔丢了一个粽子下来\n（端午节快乐！）';
+      : '🐰🌿 玉兔丢了一个粽子下来\n（端午节快乐！）';
     showToast(msg, 3500);
 
     setTimeout(function() { rabbit.remove(); }, 2500);
