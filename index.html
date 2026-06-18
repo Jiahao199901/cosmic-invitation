@@ -96,6 +96,7 @@
     font-size: 20px;
     opacity: 0.5;
     animation: drift 12s ease-in-out infinite;
+    transition: opacity 0.4s, font-size 0.3s, filter 0.3s;
   }
 
   @keyframes drift {
@@ -444,6 +445,154 @@
     }
   }
 
+  /* ── Easter egg: Hidden pixel person ── */
+  .pixel-person {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 50;
+    font-size: 14px;
+    opacity: 0.12;
+    cursor: pointer;
+    transition: opacity 0.4s;
+    user-select: none;
+  }
+  .pixel-person:hover,
+  .pixel-person.found {
+    opacity: 0.85;
+  }
+  .pixel-person .bubble {
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(8,12,31,0.92);
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    font-size: 10px;
+    padding: 0.4rem 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .pixel-person.found .bubble {
+    opacity: 1;
+    animation: bubble-pop 0.4s ease-out;
+  }
+  @keyframes bubble-pop {
+    0% { transform: translateX(-50%) scale(0.5); }
+    60% { transform: translateX(-50%) scale(1.15); }
+    100% { transform: translateX(-50%) scale(1); }
+  }
+
+  /* ── Easter egg: Drag ghost (silkworm follows cursor) ── */
+  .drag-ghost {
+    position: fixed;
+    z-index: 999;
+    font-size: 32px;
+    pointer-events: none;
+    filter: drop-shadow(0 0 8px rgba(196,163,90,0.5));
+    transform: translate(-50%, -50%);
+  }
+  .drag-ghost.dropping {
+    animation: ghost-dissolve 0.6s ease-out forwards;
+  }
+  @keyframes ghost-dissolve {
+    0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+  }
+
+  /* ── Easter egg: Fly away together ── */
+  .flyaway-ship,
+  .flyaway-worm {
+    position: fixed;
+    z-index: 998;
+    pointer-events: none;
+  }
+  .flyaway-ship {
+    font-size: 28px;
+    animation: fly-ship 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  .flyaway-worm {
+    font-size: 16px;
+    animation: fly-worm 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  @keyframes fly-ship {
+    0% { transform: translate(0, 0) rotate(-5deg) scale(1); opacity: 1; }
+    15% { transform: translate(40px, -50px) rotate(-8deg) scale(1.1); opacity: 1; }
+    50% { transform: translate(150px, -130px) rotate(-15deg) scale(0.9); opacity: 0.8; }
+    100% { transform: translate(350px, -250px) rotate(-25deg) scale(0.5); opacity: 0; }
+  }
+  @keyframes fly-worm {
+    0% { transform: translate(0, 0); opacity: 0.8; }
+    20% { transform: translate(35px, -45px); opacity: 0.7; }
+    55% { transform: translate(140px, -120px); opacity: 0.5; }
+    100% { transform: translate(330px, -240px); opacity: 0; }
+  }
+
+  /* ── Easter egg: Toast ── */
+  .toast {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    font-family: 'Zpix', monospace;
+    font-size: 14px;
+    color: var(--accent-gold);
+    background: rgba(8,12,31,0.94);
+    border: 1px solid var(--accent-gold);
+    padding: 0.8rem 1.4rem;
+    pointer-events: none;
+    animation: toast-inout 3s ease-in-out forwards;
+    text-align: center;
+    max-width: 85vw;
+    line-height: 1.8;
+  }
+  @keyframes toast-inout {
+    0% { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
+    10% { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+    80% { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+    100% { opacity: 0; transform: translate(-50%, -50%) translateY(-20px); }
+  }
+
+  /* ── Easter egg: Star burst ── */
+  .star-burst {
+    position: fixed;
+    z-index: 900;
+    font-family: 'Zpix', monospace;
+    font-size: 18px;
+    color: var(--star-white);
+    pointer-events: none;
+    animation: star-burst 4.5s ease-out forwards;
+    text-shadow: 0 0 20px rgba(232,228,217,0.6);
+  }
+  @keyframes star-burst {
+    0% { opacity: 0; transform: scale(0.3); }
+    15% { opacity: 1; transform: scale(1.6); }
+    40% { opacity: 0.8; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(0.8) translateY(-40px); }
+  }
+
+  /* ── Easter egg: Late night hint ── */
+  .late-night-hint {
+    position: absolute;
+    top: calc(8% + 56px);
+    right: 12%;
+    font-family: 'Zpix', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    opacity: 0;
+    animation: hint-fadein 1s ease-out 3s forwards;
+    text-align: right;
+    line-height: 1.6;
+  }
+  @keyframes hint-fadein {
+    from { opacity: 0; }
+    to { opacity: 0.5; }
+  }
+
   /* ── Tiny screens: <= 380px ── */
   @media (max-width: 380px) {
     .icon-grid {
@@ -473,13 +622,20 @@
 <!-- Starfield background -->
 <canvas id="starfield" aria-hidden="true"></canvas>
 
+<!-- Hidden pixel person -->
+<div class="pixel-person" id="pixelPerson" title="？">
+  🧑‍🚀
+  <span class="bubble">你找到我了</span>
+</div>
+
 <!-- Music toggle -->
 <button class="music-toggle" id="musicBtn" aria-label="音乐开关" title="发射后不管，但音乐别吓到她">♪</button>
 
 <!-- ═══════════════ Screen 1: Title ═══════════════ -->
 <section class="screen-title">
   <div class="pixel-moon" aria-hidden="true"></div>
-  <div class="pixel-spaceship" aria-hidden="true">🛸</div>
+  <div class="late-night-hint" id="lateNightHint"></div>
+  <div class="pixel-spaceship" id="spaceshipTarget" aria-hidden="true">🛸</div>
   <h1>
     宇宙间<br>
     思维漫游<br>
@@ -570,29 +726,38 @@
 </footer>
 
 <script>
-// ── Starfield ──
+// ── Helper: Toast ──
+function showToast(msg, duration) {
+  duration = duration || 3000;
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, duration);
+}
+
+// ═══════════════ Starfield ═══════════════
 (function() {
-  const canvas = document.getElementById('starfield');
-  const ctx = canvas.getContext('2d');
-  let stars = [];
-  let w, h;
+  var canvas = document.getElementById('starfield');
+  var ctx = canvas.getContext('2d');
+  var stars = [];
+  var w, h;
 
   function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
   }
   resize();
-  window.addEventListener('resize', () => {
+  window.addEventListener('resize', function() {
     resize();
     initStars();
   });
 
   function initStars() {
-    // Fewer stars on mobile for performance
-    const density = w < 640 ? 3500 : 1800;
-    const count = Math.floor(w * h / density);
+    var density = w < 640 ? 3500 : 1800;
+    var count = Math.floor(w * h / density);
     stars = [];
-    for (let i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       stars.push({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -607,10 +772,11 @@
 
   function draw() {
     ctx.clearRect(0, 0, w, h);
-    const now = Date.now() * 0.001;
-    for (const s of stars) {
+    var now = Date.now() * 0.001;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
       s.alpha = s.baseAlpha * (0.5 + 0.5 * Math.sin(now * s.speed * 3 + s.phase));
-      ctx.fillStyle = `rgba(232,228,217,${s.alpha})`;
+      ctx.fillStyle = 'rgba(232,228,217,' + s.alpha + ')';
       ctx.fillRect(Math.round(s.x), Math.round(s.y), Math.round(s.r * 2), Math.round(s.r * 2));
     }
     requestAnimationFrame(draw);
@@ -619,104 +785,83 @@
   initStars();
   draw();
 
-  // Add occasional shooting star (rare, subtle)
   function shootingStar() {
-    const sx = Math.random() * w * 0.8;
-    const sy = Math.random() * h * 0.5;
-    const len = 40 + Math.random() * 60;
-    const alpha = 0.3 + Math.random() * 0.3;
-    let t = 0;
-
+    var sx = Math.random() * w * 0.8;
+    var sy = Math.random() * h * 0.5;
+    var len = 40 + Math.random() * 60;
+    var alpha = 0.3 + Math.random() * 0.3;
+    var t = 0;
     function animate() {
-      ctx.fillStyle = `rgba(232,228,217,${alpha * (1 - t)})`;
-      const x = sx + t * len;
-      const y = sy + t * len * 0.4;
-      ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
+      ctx.fillStyle = 'rgba(232,228,217,' + (alpha * (1 - t)) + ')';
+      ctx.fillRect(Math.round(sx + t * len), Math.round(sy + t * len * 0.4), 2, 2);
       t += 0.02;
       if (t < 1) requestAnimationFrame(animate);
     }
     animate();
   }
-  setInterval(() => { if (Math.random() < 0.15) shootingStar(); }, 8000);
+  setInterval(function() { if (Math.random() < 0.15) shootingStar(); }, 8000);
 })();
 
-// ── Icon pop-ups ──
+// ═══════════════ Icon pop-ups ═══════════════
 (function() {
-  const cells = document.querySelectorAll('.icon-cell');
-  cells.forEach(cell => {
+  var cells = document.querySelectorAll('.icon-cell');
+  cells.forEach(function(cell) {
     cell.addEventListener('click', function() {
-      // Remove any existing pop on this cell
-      const existing = this.querySelector('.pop');
+      var existing = this.querySelector('.pop');
       if (existing) existing.remove();
-
-      const pop = document.createElement('span');
+      var pop = document.createElement('span');
       pop.className = 'pop show';
       pop.textContent = this.dataset.pop;
       this.appendChild(pop);
-
-      // Clean up after animation
-      pop.addEventListener('animationend', () => pop.remove());
+      pop.addEventListener('animationend', function() { pop.remove(); });
     });
   });
 })();
 
-// ── Music ──
+// ═══════════════ Music ═══════════════
 (function() {
-  const btn = document.getElementById('musicBtn');
-  let playing = true; // 默认开启
-  let ambient = null;
+  var btn = document.getElementById('musicBtn');
+  var playing = true;
+  var ambient = null;
 
   function createAmbientAudio() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      const actx = new AudioContext();
-
-      const masterGain = actx.createGain();
+      var AudioContext = window.AudioContext || window.webkitAudioContext;
+      var actx = new AudioContext();
+      var masterGain = actx.createGain();
       masterGain.gain.value = 0.028;
       masterGain.connect(actx.destination);
 
-      // ── Cheerful space theme: bright major pentatonic, light and floaty ──
-      const notes = [
-        261.63, 293.66, 329.63, 392.00, 440.00, // C4 D4 E4 G4 A4
-        523.25, 587.33, 659.25, 783.99, 880.00, // C5 D5 E5 G5 A5
+      var notes = [
+        261.63, 293.66, 329.63, 392.00, 440.00,
+        523.25, 587.33, 659.25, 783.99, 880.00,
       ];
 
-      const playChime = (freq, startTime, duration, vol, pan) => {
-        // Main tone — triangle wave for warmth
-        const osc1 = actx.createOscillator();
+      function playChime(freq, startTime, duration, vol, pan) {
+        var osc1 = actx.createOscillator();
         osc1.type = 'triangle';
         osc1.frequency.value = freq;
-
-        // Detuned companion for shimmer
-        const osc2 = actx.createOscillator();
+        var osc2 = actx.createOscillator();
         osc2.type = 'sine';
         osc2.frequency.value = freq * 2.003;
-
-        const g = actx.createGain();
-        const p = actx.createStereoPanner();
+        var g = actx.createGain();
+        var p = actx.createStereoPanner();
         if (p.pan) p.pan.value = pan || 0;
-
         g.gain.setValueAtTime(0, startTime);
         g.gain.linearRampToValueAtTime(vol * 0.7, startTime + 0.15);
         g.gain.setValueAtTime(vol * 0.7, startTime + duration * 0.5);
         g.gain.linearRampToValueAtTime(0, startTime + duration);
+        osc1.connect(g); osc2.connect(g);
+        g.connect(p); p.connect(masterGain);
+        osc1.start(startTime); osc1.stop(startTime + duration + 0.1);
+        osc2.start(startTime); osc2.stop(startTime + duration + 0.1);
+      }
 
-        osc1.connect(g);
-        osc2.connect(g);
-        g.connect(p);
-        p.connect(masterGain);
-
-        osc1.start(startTime);
-        osc1.stop(startTime + duration + 0.1);
-        osc2.start(startTime);
-        osc2.stop(startTime + duration + 0.1);
-      };
-
-      const loopDuration = 16;
-      const now = actx.currentTime;
+      var loopDuration = 16;
+      var now = actx.currentTime;
 
       function scheduleLoop(offset) {
-        const patterns = [
+        var patterns = [
           [0, -0.3], [2, 0.2], [4, -0.2], [5, 0.3],
           [7, 0.1], [4, -0.2], [2, 0.3], [0, -0.1],
           [3, 0.2], [5, -0.3], [7, 0], [8, 0.2],
@@ -724,38 +869,30 @@
           [1, 0.3], [3, -0.1], [6, 0], [8, -0.3],
           [9, 0.1], [7, -0.2], [4, 0.2], [2, -0.1],
         ];
-
-        const step = loopDuration / patterns.length;
-        for (let i = 0; i < patterns.length; i++) {
-          const [noteIdx, pan] = patterns[i];
-          const t = offset + i * step;
-          const dur = step + 0.8;
-          playChime(notes[noteIdx], t, dur, 0.022, pan);
+        var step = loopDuration / patterns.length;
+        for (var i = 0; i < patterns.length; i++) {
+          var noteIdx = patterns[i][0], pan = patterns[i][1];
+          var t = offset + i * step;
+          playChime(notes[noteIdx], t, step + 0.8, 0.022, pan);
         }
       }
 
-      for (let l = 0; l < 30; l++) {
-        scheduleLoop(now + l * loopDuration);
-      }
+      for (var l = 0; l < 30; l++) { scheduleLoop(now + l * loopDuration); }
 
-      const rescheduleMs = loopDuration * 10 * 1000;
-      const interval = setInterval(() => {
+      var rescheduleMs = loopDuration * 10 * 1000;
+      var interval = setInterval(function() {
         if (actx.state === 'closed') { clearInterval(interval); return; }
         scheduleLoop(actx.currentTime + loopDuration * 28);
       }, rescheduleMs);
 
-      return { ctx: actx, cleanup: () => { clearInterval(interval); actx.close(); } };
-    } catch(e) {
-      return null;
-    }
+      return { ctx: actx, cleanup: function() { clearInterval(interval); actx.close(); } };
+    } catch(e) { return null; }
   }
 
   function startMusic() {
     if (ambient) {
       if (ambient.ctx.state === 'suspended') ambient.ctx.resume();
-    } else {
-      ambient = createAmbientAudio();
-    }
+    } else { ambient = createAmbientAudio(); }
     if (ambient) {
       playing = true;
       btn.classList.add('playing');
@@ -772,16 +909,14 @@
     btn.title = '音乐已关闭';
   }
 
-  // 尝试自动播放（大多数浏览器会暂停 AudioContext，等用户交互后恢复）
   ambient = createAmbientAudio();
   if (ambient) {
     btn.classList.add('playing');
     btn.textContent = '♫';
     btn.title = '音乐播放中 — 点击关闭';
-
-    const resumeOnInteraction = () => {
+    var resumeOnInteraction = function() {
       if (ambient && ambient.ctx.state === 'suspended') {
-        ambient.ctx.resume().then(() => { playing = true; });
+        ambient.ctx.resume().then(function() { playing = true; });
       }
     };
     document.addEventListener('click', resumeOnInteraction, { once: true });
@@ -790,11 +925,189 @@
     document.addEventListener('wheel', resumeOnInteraction, { once: true });
   }
 
-  // 按钮切换
-  btn.addEventListener('click', (e) => {
+  btn.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (playing) { stopMusic(); }
-    else { startMusic(); }
+    if (playing) { stopMusic(); } else { startMusic(); }
+  });
+})();
+
+// ═══════════════ Easter Egg 1: Konami Code ═══════════════
+(function() {
+  var konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // ↑↑↓↓←→←→BA
+  var pos = 0;
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === konami[pos]) {
+      pos++;
+      if (pos === konami.length) {
+        pos = 0;
+        showToast('🎮 你怎么知道这个指令的\n（看来是自己人）', 3500);
+      }
+    } else {
+      pos = (e.keyCode === konami[0]) ? 1 : 0;
+    }
+  });
+})();
+
+// ═══════════════ Easter Egg 2: Drag silkworm to spaceship ═══════════════
+(function() {
+  var wormCell = document.querySelector('.icon-cell[data-pop*="晕碳"]');
+  var spaceship = document.getElementById('spaceshipTarget');
+  var ghost = null;
+  var dragging = false;
+  var startX, startY;
+  var wormFlown = false;
+
+  if (!wormCell || !spaceship) return;
+
+  function getPos(e) {
+    if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function onStart(e) {
+    if (wormFlown) return;
+    e.preventDefault();
+    dragging = true;
+    var pos = getPos(e);
+    startX = pos.x; startY = pos.y;
+    // Create ghost
+    ghost = document.createElement('div');
+    ghost.className = 'drag-ghost';
+    ghost.textContent = '🐛';
+    ghost.style.left = pos.x + 'px';
+    ghost.style.top = pos.y + 'px';
+    document.body.appendChild(ghost);
+    // Highlight spaceship
+    spaceship.classList.add('drop-target');
+  }
+
+  function onMove(e) {
+    if (!dragging || !ghost) return;
+    e.preventDefault();
+    var pos = getPos(e);
+    ghost.style.left = pos.x + 'px';
+    ghost.style.top = pos.y + 'px';
+  }
+
+  function onEnd(e) {
+    if (!dragging) return;
+    dragging = false;
+    spaceship.classList.remove('drop-target');
+    if (!ghost) return;
+
+    var pos = getPos(e);
+    // Check if dropped near spaceship
+    var shipRect = spaceship.getBoundingClientRect();
+    var shipCX = shipRect.left + shipRect.width / 2;
+    var shipCY = shipRect.top + shipRect.height / 2;
+    var dist = Math.sqrt(Math.pow(pos.x - shipCX, 2) + Math.pow(pos.y - shipCY, 2));
+
+    if (dist < 80) {
+      // 🎉 They fly away together!
+      wormFlown = true;
+      ghost.classList.add('dropping');
+
+      // Fly-away ship
+      var flyShip = document.createElement('div');
+      flyShip.className = 'flyaway-ship';
+      flyShip.textContent = '🛸';
+      flyShip.style.left = shipCX + 'px';
+      flyShip.style.top = shipCY + 'px';
+      document.body.appendChild(flyShip);
+
+      // Fly-away worm (trailing slightly)
+      var flyWorm = document.createElement('div');
+      flyWorm.className = 'flyaway-worm';
+      flyWorm.textContent = '🐛';
+      flyWorm.style.left = (shipCX - 10) + 'px';
+      flyWorm.style.top = (shipCY + 10) + 'px';
+      document.body.appendChild(flyWorm);
+
+      // Hide original spaceship
+      spaceship.style.opacity = '0';
+      spaceship.style.transition = 'opacity 0.5s';
+
+      // Clean up
+      setTimeout(function() {
+        ghost.remove();
+        flyShip.remove();
+        flyWorm.remove();
+      }, 3000);
+
+      showToast('🐛🛸 蚕宝宝和飞船一起飞走了！\n（它们去银河系兜风了，可能不回来了）', 4000);
+
+      // Update worm cell label
+      var label = wormCell.querySelector('.label');
+      if (label) label.innerHTML = '蚕宝宝<br><small style="color:#6b7280">已出发 ✨</small>';
+    } else {
+      // Drop elsewhere — bounce back
+      ghost.classList.add('dropping');
+      showToast('蚕宝宝：我不想上飞船！', 1800);
+      setTimeout(function() { if (ghost) ghost.remove(); }, 600);
+    }
+    ghost = null;
+  }
+
+  // Mouse events
+  wormCell.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+
+  // Touch events
+  wormCell.addEventListener('touchstart', onStart, { passive: false });
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('touchend', onEnd);
+})();
+
+// ═══════════════ Easter Egg 3: Click counter → star burst ═══════════════
+(function() {
+  var clicks = 0;
+  var milestones = {
+    20: '⭐ 第20次点击，一颗星星裂开了\n（里面掉出来一颗糖）',
+    42: '📖 第42次点击\n生命、宇宙与一切的答案……\n算了，没有答案',
+    69: '😏 第69次点击\n（你故意的吧）',
+    100: '💯 第100次点击\n你是认真的吗\n这颗星星送你',
+  };
+
+  document.addEventListener('click', function() {
+    clicks++;
+    if (milestones[clicks]) {
+      showToast(milestones[clicks], 4000);
+      // Star burst animation
+      var star = document.createElement('div');
+      star.className = 'star-burst';
+      star.textContent = '★';
+      star.style.left = (20 + Math.random() * 60) + '%';
+      star.style.top = (15 + Math.random() * 50) + '%';
+      document.body.appendChild(star);
+      setTimeout(function() { star.remove(); }, 4500);
+    }
+  });
+})();
+
+// ═══════════════ Easter Egg 4: Late night hint ═══════════════
+(function() {
+  var hour = new Date().getHours();
+  if (hour >= 22 || hour < 6) {
+    var hint = document.getElementById('lateNightHint');
+    if (hint) {
+      hint.textContent = '这么晚了\n还不睡吗';
+    }
+  }
+})();
+
+// ═══════════════ Easter Egg 5: Hidden pixel person ═══════════════
+(function() {
+  var person = document.getElementById('pixelPerson');
+  if (!person) return;
+  person.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (!this.classList.contains('found')) {
+      this.classList.add('found');
+      setTimeout(function() {
+        person.classList.remove('found');
+      }, 4000);
+    }
   });
 })();
 </script>
