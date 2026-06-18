@@ -601,6 +601,12 @@
     70% { transform: translate(-140px, -10px) rotate(-300deg); opacity: 0.8; }
     100% { transform: translate(-200px, 60px) rotate(-480deg); opacity: 0; }
   }
+  @keyframes zongzi-arc {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    30% { transform: translate(50px, -55px) rotate(120deg); opacity: 1; }
+    70% { transform: translate(120px, -15px) rotate(300deg); opacity: 0.8; }
+    100% { transform: translate(180px, 50px) rotate(480deg); opacity: 0; }
+  }
 
   /* ── Drop zone pulse ── */
   @keyframes dropzone-pulse {
@@ -1181,38 +1187,43 @@ function showToast(msg, duration) {
   });
 })();
 
-// ═══════════════ Easter Egg 6: Moon rabbit throws mooncake ═══════════════
+// ═══════════════ Easter Egg 6: Moon rabbit throws treats ═══════════════
 (function() {
   var moon = document.querySelector('.pixel-moon');
   if (!moon) return;
+  var clickCount = 0;
 
   moon.addEventListener('click', function(e) {
     e.stopPropagation();
+    clickCount++;
+    var isMooncake = clickCount % 2 === 1; // odd = mooncake, even = zongzi
 
     var rect = moon.getBoundingClientRect();
 
-    // Rabbit appears on the moon (fixed position so moon stays put)
+    // Rabbit appears on the moon
     var rabbit = document.createElement('span');
-    rabbit.className = 'moon-rabbit';
     rabbit.textContent = '🐰';
     rabbit.style.cssText = 'position:fixed;font-size:20px;pointer-events:none;z-index:50;'
       + 'left:' + (rect.left + 4) + 'px;top:' + (rect.top - 12) + 'px;'
       + 'animation:rabbit-pop 0.5s ease-out forwards;';
     document.body.appendChild(rabbit);
 
-    // Mooncake flies out
+    // Treat flies out
     setTimeout(function() {
-      var cake = document.createElement('span');
-      cake.className = 'mooncake-toss';
-      cake.textContent = '🥮';
-      cake.style.cssText = 'position:fixed;font-size:16px;pointer-events:none;z-index:49;'
+      var treat = document.createElement('span');
+      treat.textContent = isMooncake ? '🥮' : '🍙';
+      var animName = isMooncake ? 'mooncake-arc' : 'zongzi-arc';
+      treat.style.cssText = 'position:fixed;font-size:16px;pointer-events:none;z-index:49;'
         + 'left:' + (rect.left + 16) + 'px;top:' + (rect.top + 8) + 'px;'
-        + 'animation:mooncake-arc 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;';
-      document.body.appendChild(cake);
-      setTimeout(function() { cake.remove(); }, 2000);
+        + 'animation:' + animName + ' 1.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;';
+      document.body.appendChild(treat);
+      setTimeout(function() { treat.remove(); }, 2000);
     }, 400);
 
-    showToast('🐰🥮 玉兔丢了一块月饼下来\n（中秋节还早，先接着吧）', 3500);
+    var msg = isMooncake
+      ? '🐰🥮 玉兔丢了一块月饼下来\n（中秋节还早，先接着吧）'
+      : '🐰🍙 玉兔丢了一个粽子下来\n（端午节快乐！）';
+    showToast(msg, 3500);
 
     setTimeout(function() { rabbit.remove(); }, 2500);
   });
