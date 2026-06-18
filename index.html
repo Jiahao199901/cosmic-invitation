@@ -575,6 +575,20 @@
     100% { opacity: 0; transform: scale(0.6) rotate(60deg) translateY(-60px); }
   }
 
+  .pixel-spaceship.awaiting-return {
+    animation: awaiting-pulse 2s ease-in-out infinite;
+  }
+  @keyframes awaiting-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 6px rgba(196,163,90,0.3));
+      transform: scale(1);
+    }
+    50% {
+      filter: drop-shadow(0 0 16px rgba(196,163,90,0.6));
+      transform: scale(1.15);
+    }
+  }
+
   /* ── Drop zone pulse ── */
   @keyframes dropzone-pulse {
     0%, 100% { transform: scale(1); opacity: 0.7; }
@@ -1045,52 +1059,60 @@ function showToast(msg, duration) {
     var dist = Math.sqrt(Math.pow(pos.x - shipCX, 2) + Math.pow(pos.y - shipCY, 2));
 
     if (dist < 100) {
-      // 🎉 Fly away together!
+      // 🎉 They vanished together!
       wormFlown = true;
       ghost.classList.add('dropping');
 
-      // Animate spaceship flying away from the grid
-      var flyShip = document.createElement('div');
-      flyShip.className = 'flyaway-ship';
-      flyShip.textContent = '🛸';
-      flyShip.style.left = shipCX + 'px';
-      flyShip.style.top = shipCY + 'px';
-      document.body.appendChild(flyShip);
+      // Hide both cells completely
+      wormCell.style.opacity = '0';
+      wormCell.style.pointerEvents = 'none';
+      wormCell.style.transition = 'opacity 0.6s';
+      shipCell.style.opacity = '0';
+      shipCell.style.pointerEvents = 'none';
+      shipCell.style.transition = 'opacity 0.6s';
 
-      var flyWorm = document.createElement('div');
-      flyWorm.className = 'flyaway-worm';
-      flyWorm.textContent = '🐛';
-      flyWorm.style.left = (shipCX - 10) + 'px';
-      flyWorm.style.top = (shipCY + 10) + 'px';
-      document.body.appendChild(flyWorm);
-
-      // Dim the spaceship in the grid
-      shipCell.style.opacity = '0.3';
-      shipCell.style.transition = 'opacity 0.5s';
-      // Also hide screen 1 spaceship
+      // Make Screen 1 spaceship glow — hint it's now clickable
       if (originalShip) {
-        originalShip.style.opacity = '0';
-        originalShip.style.transition = 'opacity 0.5s';
+        originalShip.style.opacity = '0.75';
+        originalShip.style.fontSize = '24px';
+        originalShip.style.filter = 'drop-shadow(0 0 10px rgba(196,163,90,0.5))';
+        originalShip.style.cursor = 'pointer';
+        originalShip.classList.add('awaiting-return');
       }
 
-      setTimeout(function() {
-        if (ghost) ghost.remove();
-        flyShip.remove();
-        flyWorm.remove();
-      }, 3000);
+      setTimeout(function() { if (ghost) ghost.remove(); }, 600);
 
-      showToast('🐛🛸 蚕宝宝和飞船一起飞走了！\n（它们去银河系兜风了，可能不回来了）', 4000);
-
-      var wormLabel = wormCell.querySelector('.label');
-      if (wormLabel) wormLabel.innerHTML = '蚕宝宝<br><small style="color:#6b7280">已出发 ✨</small>';
-      var shipLabel = shipCell.querySelector('.label');
-      if (shipLabel) shipLabel.innerHTML = '飞船<br><small style="color:#6b7280">已出发 ✨</small>';
+      showToast('🐛🛸 蚕宝宝搭飞船出发了\n（回第一屏看看那颗停在背景里的飞船）', 4000);
     } else {
       ghost.classList.add('dropping');
       showToast('蚕宝宝：我不想上飞船！', 1800);
       setTimeout(function() { if (ghost) ghost.remove(); }, 600);
     }
     ghost = null;
+  }
+
+  // ── Click Screen 1 spaceship to bring them back ──
+  if (originalShip) {
+    originalShip.addEventListener('click', function(e) {
+      if (!wormFlown) return;
+      e.stopPropagation();
+      // Reset everything
+      wormFlown = false;
+      wormCell.style.opacity = '1';
+      wormCell.style.pointerEvents = '';
+      shipCell.style.opacity = '1';
+      shipCell.style.pointerEvents = '';
+      originalShip.style.opacity = '0.5';
+      originalShip.style.fontSize = '20px';
+      originalShip.style.filter = '';
+      originalShip.style.cursor = '';
+      originalShip.classList.remove('awaiting-return');
+      var wormLabel = wormCell.querySelector('.label');
+      if (wormLabel) wormLabel.innerHTML = '蚕宝宝<br><small style="color:#6b7280">注意不要喂太饱</small>';
+      var shipLabel = shipCell.querySelector('.label');
+      if (shipLabel) shipLabel.innerHTML = '飞船<br><small style="color:#6b7280">发射后不管型号</small>';
+      showToast('🛸🐛 他们从银河系回来了\n（在你星球门口停了一会，又回到了原来的位置）', 4000);
+    });
   }
 
   // Mouse events
