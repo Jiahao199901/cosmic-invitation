@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>一份没有重要内容的页面</title>
+<!-- Zpix = 中文像素字体，来自 jsDelivr（国内可访问），包含基本拉丁字符，无需 Google Fonts -->
+<style>
+  @font-face {
+    font-family: 'Zpix';
+    src: url('https://cdn.jsdelivr.net/npm/zpix@3.1.0/dist/Zpix.woff2') format('woff2');
+    font-display: swap;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --deep-space: #080c1f;
+    --star-white: #e8e4d9;
+    --moon-pale: #f5f0e1;
+    --accent-blue: #7b9cb8;
+    --accent-gold: #c4a35a;
+    --text-soft: #c8d0d8;
+    --text-dim: #6b7280;
+    --pixel-size: 3px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y proximity;
+  }
+
+  body {
+    background: var(--deep-space);
+    color: var(--text-soft);
+    font-family: 'Zpix', monospace;
+    line-height: 1.8;
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><circle cx='8' cy='8' r='2' fill='white' opacity='0.7'/></svg>") 8 8, auto;
+  }
+
+  /* ── Starfield Canvas ── */
+  #starfield {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Sections ── */
+  section {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    scroll-snap-align: start;
+  }
+
+  /* ── Pixel decorations ── */
+  .pixel-star {
+    position: absolute;
+    image-rendering: pixelated;
+    opacity: 0.6;
+  }
+  .pixel-star::after {
+    content: '★';
+    font-size: 12px;
+    color: var(--star-white);
+    opacity: 0.5;
+  }
+
+  .pixel-moon {
+    position: absolute;
+    top: 8%;
+    right: 12%;
+    width: 48px;
+    height: 48px;
+    image-rendering: pixelated;
+    background:
+      radial-gradient(circle at 40% 40%, #f5f0e1 0%, #e8dcc8 60%, transparent 70%);
+    border-radius: 50%;
+    box-shadow:
+      0 0 20px rgba(245,240,225,0.15),
+      0 0 60px rgba(245,240,225,0.06);
+  }
+
+  .pixel-spaceship {
+    position: absolute;
+    bottom: 18%;
+    left: 15%;
+    font-size: 20px;
+    opacity: 0.5;
+    animation: drift 12s ease-in-out infinite;
+  }
+
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) rotate(-5deg); }
+    25% { transform: translate(30px, -15px) rotate(-2deg); }
+    50% { transform: translate(10px, -25px) rotate(-8deg); }
+    75% { transform: translate(-20px, -10px) rotate(-3deg); }
+  }
+
+  /* ── Screen 1: Title ── */
+  .screen-title h1 {
+    font-family: 'Zpix', monospace;
+    font-size: clamp(16px, 2.8vw, 24px);
+    color: var(--star-white);
+    text-align: center;
+    letter-spacing: 0.15em;
+    line-height: 2;
+    text-shadow:
+      0 0 10px rgba(232,228,217,0.3),
+      0 0 40px rgba(123,156,184,0.15);
+    animation: title-glow 4s ease-in-out infinite;
+  }
+
+  @keyframes title-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(232,228,217,0.3), 0 0 40px rgba(123,156,184,0.15); }
+    50% { text-shadow: 0 0 15px rgba(232,228,217,0.45), 0 0 60px rgba(123,156,184,0.25); }
+  }
+
+  .screen-title .sub-note {
+    margin-top: 1.5rem;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-size: 11px;
+    color: var(--text-dim);
+    animation: bounce-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce-hint {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(8px); opacity: 0.7; }
+  }
+
+  /* ── Screen 2: Rules ── */
+  .screen-rules .rules-box {
+    border: 2px solid rgba(123,156,184,0.2);
+    padding: 2.5rem 2rem;
+    max-width: 520px;
+    width: 100%;
+    image-rendering: pixelated;
+    position: relative;
+  }
+  .rules-box::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    right: -2px; bottom: -2px;
+    border: 1px solid rgba(123,156,184,0.08);
+    pointer-events: none;
+  }
+  .rules-box h2 {
+    font-size: 14px;
+    color: var(--accent-gold);
+    margin-bottom: 2rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+  .rules-box ol {
+    list-style: none;
+    counter-reset: rule;
+  }
+  .rules-box ol li {
+    counter-increment: rule;
+    font-size: 14px;
+    color: var(--text-soft);
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+    position: relative;
+    line-height: 1.6;
+  }
+  .rules-box ol li::before {
+    content: counter(rule) '.';
+    position: absolute;
+    left: 0;
+    color: var(--accent-blue);
+    font-size: 12px;
+  }
+
+  /* ── Screen 3: Message ── */
+  .screen-message .message-block {
+    max-width: 540px;
+    width: 100%;
+    text-align: left;
+  }
+  .screen-message p {
+    font-size: 15px;
+    margin-bottom: 3rem;
+    color: var(--text-soft);
+    line-height: 2;
+  }
+  .screen-message p + p {
+    margin-bottom: 2.5rem;
+  }
+
+  /* ── Icon Grid ── */
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  @media (max-width: 480px) {
+    .icon-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: border-color 0.3s, background 0.3s;
+    image-rendering: pixelated;
+    user-select: none;
+    position: relative;
+  }
+  .icon-cell:hover {
+    border-color: rgba(123,156,184,0.3);
+    background: rgba(123,156,184,0.05);
+  }
+  .icon-cell .icon {
+    font-size: 28px;
+    transition: transform 0.2s;
+    image-rendering: pixelated;
+  }
+  .icon-cell:hover .icon {
+    transform: scale(1.2);
+  }
+  .icon-cell .label {
+    font-size: 12px;
+    font-family: 'Zpix', monospace;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .icon-cell .pop {
+    position: absolute;
+    z-index: 10;
+    font-size: 12px;
+    color: var(--accent-gold);
+    font-family: 'Zpix', monospace;
+    opacity: 0;
+    transform: translateY(0);
+    pointer-events: none;
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgba(8,12,31,0.9);
+    transition: none;
+  }
+  .icon-cell .pop.show {
+    animation: pop-up 2.5s ease-out forwards;
+  }
+  @keyframes pop-up {
+    0% { opacity: 0; transform: translateY(0); }
+    15% { opacity: 1; transform: translateY(-30px); }
+    85% { opacity: 0.8; transform: translateY(-35px); }
+    100% { opacity: 0; transform: translateY(-50px); }
+  }
+
+  /* ── Screen 4: Outro ── */
+  .screen-outro p {
+    font-size: 14px;
+    color: var(--text-soft);
+    text-align: center;
+    max-width: 460px;
+    line-height: 2.2;
+  }
+  .screen-outro p + p {
+    margin-top: 2rem;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  /* ── Footer ── */
+  .pixel-footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 1rem;
+    font-family: 'Zpix', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    line-height: 2;
+    opacity: 0.5;
+  }
+
+  /* ── Music Toggle ── */
+  .music-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(123,156,184,0.3);
+    background: rgba(8,12,31,0.8);
+    color: var(--text-dim);
+    font-family: 'Zpix', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    image-rendering: pixelated;
+  }
+  .music-toggle:hover {
+    border-color: rgba(123,156,184,0.6);
+    color: var(--star-white);
+  }
+  .music-toggle.playing {
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    animation: music-pulse 3s ease-in-out infinite;
+  }
+  @keyframes music-pulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(196,163,90,0); }
+    50% { box-shadow: 0 0 12px rgba(196,163,90,0.15); }
+  }
+
+  /* ── Loading / fallback ── */
+  .noscript-note {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'Zpix', monospace;
+    background: rgba(8,12,31,0.9);
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(123,156,184,0.2);
+  }
+
+  /* ── Mobile: <= 640px ── */
+  @media (max-width: 640px) {
+    html {
+      scroll-snap-type: none; /* 手机上 scroll-snap 容易卡顿，关掉更顺滑 */
+    }
+
+    body {
+      cursor: auto; /* 手机没有光标，回退默认 */
+    }
+
+    section {
+      padding: 1.5rem 1rem;
+      min-height: 100vh;
+      min-height: 100dvh; /* 动态 viewport，适配 iOS Safari 地址栏 */
+    }
+
+    .screen-title h1 {
+      font-size: 18px;
+      line-height: 2.2;
+    }
+    .screen-title .sub-note {
+      font-size: 11px;
+    }
+    .scroll-hint {
+      font-size: 10px;
+      bottom: 1.5rem;
+    }
+
+    .pixel-moon {
+      width: 36px;
+      height: 36px;
+      top: 5%;
+      right: 8%;
+    }
+    .pixel-spaceship {
+      font-size: 16px;
+      bottom: 22%;
+      left: 8%;
+    }
+
+    .screen-rules .rules-box {
+      padding: 1.5rem 1.2rem;
+    }
+    .rules-box h2 {
+      font-size: 13px;
+      margin-bottom: 1.5rem;
+    }
+    .rules-box ol li {
+      font-size: 13px;
+      padding-left: 1.5rem;
+    }
+
+    .screen-message .message-block {
+      max-width: 100%;
+    }
+    .screen-message p {
+      font-size: 14px;
+      margin-bottom: 2rem;
+      line-height: 1.9;
+    }
+
+    .icon-grid {
+      gap: 0.8rem;
+    }
+    .icon-cell {
+      padding: 0.8rem 0.3rem;
+    }
+    .icon-cell .icon {
+      font-size: 24px;
+    }
+    .icon-cell .label {
+      font-size: 10px;
+    }
+    .icon-cell .pop {
+      font-size: 11px;
+    }
+
+    .screen-outro p {
+      font-size: 13px;
+    }
+
+    .pixel-footer {
+      font-size: 9px;
+      padding: 2rem 1rem;
+    }
+
+    .music-toggle {
+      width: 38px;
+      height: 38px;
+      bottom: 1rem;
+      right: 1rem;
+      font-size: 12px;
+    }
+  }
+
+  /* ── Tiny screens: <= 380px ── */
+  @media (max-width: 380px) {
+    .icon-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+    }
+    .icon-cell .icon {
+      font-size: 22px;
+    }
+    .icon-cell .label {
+      font-size: 9px;
+    }
+    .screen-title h1 {
+      font-size: 16px;
+    }
+    .screen-message p {
+      font-size: 13px;
+    }
+    .rules-box ol li {
+      font-size: 12px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Starfield background -->
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<!-- Music toggle -->
+<button class="music-toggle" id="musicBtn" aria-label="音乐开关" title="发射后不管，但音乐别吓到她">♪</button>
+
+<!-- ═══════════════ Screen 1: Title ═══════════════ -->
+<section class="screen-title">
+  <div class="pixel-moon" aria-hidden="true"></div>
+  <div class="pixel-spaceship" aria-hidden="true">🛸</div>
+  <h1>
+    宇宙间<br>
+    思维漫游<br>
+    邀请函
+  </h1>
+  <p class="sub-note">不是请柬&nbsp;&nbsp;就是一个页面</p>
+  <p class="scroll-hint">▼ 向下漫游</p>
+</section>
+
+<!-- ═══════════════ Screen 2: Journey Notes ═══════════════ -->
+<section class="screen-rules">
+  <div class="rules-box">
+    <h2>旅程须知</h2>
+    <ol>
+      <li>发射后不管，回复随意</li>
+      <li>话题漂移不受限制，撞到哪算哪</li>
+      <li>此页面仅供驻足，不含任何契约条款</li>
+      <li>按下 Ctrl+W 即可离开，此处无门禁</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ═══════════════ Screen 3: The Real Message ═══════════════ -->
+<section class="screen-message">
+  <div class="message-block">
+    <p>
+      之前说过&nbsp;&nbsp;我很喜欢被人惦记的感觉<br>
+      但常常害怕惦记过重&nbsp;&nbsp;变成压力<br>
+      所以做了这个&nbsp;&nbsp;<span style="color: var(--accent-gold);">轻的版本</span>
+    </p>
+    <p>
+      很希望有蜻蜓点水的互动<br>
+      想要打开而不是摊开<br>
+      想要对方可以不去回应<br>
+      但还是愿意偶尔敲一敲
+    </p>
+    <p>
+      需要的时候——<br>
+      <span style="color: var(--text-dim);">一个像素小人&nbsp;&nbsp;站在你星球的门口<br>
+      站一会&nbsp;&nbsp;就走</span>
+    </p>
+  </div>
+
+  <!-- Interactive icon grid -->
+  <div class="icon-grid" id="iconGrid">
+    <div class="icon-cell" data-pop="晕碳了…">
+      <span class="icon">🐛</span>
+      <span class="label">蚕宝宝<br><small style="color:#6b7280">注意不要喂太饱</small></span>
+    </div>
+    <div class="icon-cell" data-pop="已发射，不回传信号">
+      <span class="icon">🛸</span>
+      <span class="label">飞船<br><small style="color:#6b7280">发射后不管型号</small></span>
+    </div>
+    <div class="icon-cell" data-pop="📻 沙沙…滋滋…（雨天自动开启）">
+      <span class="icon">📻</span>
+      <span class="label">BAADA电台<br><small style="color:#6b7280">雨天自动开启</small></span>
+    </div>
+    <div class="icon-cell" data-pop="随便涂，没有边界">
+      <span class="icon">🎨</span>
+      <span class="label">填色区域<br><small style="color:#6b7280">无边界，随便涂</small></span>
+    </div>
+    <div class="icon-cell" data-pop="🎓 像素版·以撒同款·非官方认证">
+      <span class="icon">🎓</span>
+      <span class="label">PhD证书<br><small style="color:#6b7280">像素版·以撒同款</small></span>
+    </div>
+    <div class="icon-cell" data-pop="42 —— 暂停服务（反正也没答案）">
+      <span class="icon">📖</span>
+      <span class="label">「42」查询系统<br><small style="color:#6b7280">暂停服务</small></span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ Screen 4: Outro ═══════════════ -->
+<section class="screen-outro">
+  <p>
+    打开这个页面的人<br>
+    已经完成了全部体验。
+  </p>
+  <p>
+    此页面不追踪、不统计、不提示已读。<br>
+    站长已下线。星空继续。
+  </p>
+</section>
+
+<!-- ═══════════════ Footer ═══════════════ -->
+<footer class="pixel-footer">
+  made with 两个N人的发散 + 星露谷像素 + 比汝窑天青再蓝一点
+</footer>
+
+<script>
+// ── Starfield ──
+(function() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  let w, h;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', () => {
+    resize();
+    initStars();
+  });
+
+  function initStars() {
+    // Fewer stars on mobile for performance
+    const density = w < 640 ? 3500 : 1800;
+    const count = Math.floor(w * h / density);
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.5 + 0.3,
+        baseAlpha: Math.random() * 0.5 + 0.15,
+        alpha: 0,
+        phase: Math.random() * Math.PI * 2,
+        speed: Math.random() * 0.008 + 0.003,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    const now = Date.now() * 0.001;
+    for (const s of stars) {
+      s.alpha = s.baseAlpha * (0.5 + 0.5 * Math.sin(now * s.speed * 3 + s.phase));
+      ctx.fillStyle = `rgba(232,228,217,${s.alpha})`;
+      ctx.fillRect(Math.round(s.x), Math.round(s.y), Math.round(s.r * 2), Math.round(s.r * 2));
+    }
+    requestAnimationFrame(draw);
+  }
+
+  initStars();
+  draw();
+
+  // Add occasional shooting star (rare, subtle)
+  function shootingStar() {
+    const sx = Math.random() * w * 0.8;
+    const sy = Math.random() * h * 0.5;
+    const len = 40 + Math.random() * 60;
+    const alpha = 0.3 + Math.random() * 0.3;
+    let t = 0;
+
+    function animate() {
+      ctx.fillStyle = `rgba(232,228,217,${alpha * (1 - t)})`;
+      const x = sx + t * len;
+      const y = sy + t * len * 0.4;
+      ctx.fillRect(Math.round(x), Math.round(y), 2, 2);
+      t += 0.02;
+      if (t < 1) requestAnimationFrame(animate);
+    }
+    animate();
+  }
+  setInterval(() => { if (Math.random() < 0.15) shootingStar(); }, 8000);
+})();
+
+// ── Icon pop-ups ──
+(function() {
+  const cells = document.querySelectorAll('.icon-cell');
+  cells.forEach(cell => {
+    cell.addEventListener('click', function() {
+      // Remove any existing pop on this cell
+      const existing = this.querySelector('.pop');
+      if (existing) existing.remove();
+
+      const pop = document.createElement('span');
+      pop.className = 'pop show';
+      pop.textContent = this.dataset.pop;
+      this.appendChild(pop);
+
+      // Clean up after animation
+      pop.addEventListener('animationend', () => pop.remove());
+    });
+  });
+})();
+
+// ── Music Toggle ──
+(function() {
+  const btn = document.getElementById('musicBtn');
+  let audio = null;
+  let playing = false;
+
+  // Attempt to load a calm ambient audio
+  // Using a gentle synth pad generated via OscillatorNode as fallback
+  function createAmbientAudio() {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const actx = new AudioContext();
+
+      // Create a gentle ambient drone — not Stardew Valley, but stays in the mood
+      const gain = actx.createGain();
+      gain.gain.value = 0.04;
+      gain.connect(actx.destination);
+
+      const playNote = (freq, startTime, duration, vol) => {
+        const osc = actx.createOscillator();
+        const g = actx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0, startTime);
+        g.gain.linearRampToValueAtTime(vol, startTime + 0.8);
+        g.gain.linearRampToValueAtTime(vol * 0.6, startTime + duration * 0.7);
+        g.gain.linearRampToValueAtTime(0, startTime + duration);
+        osc.connect(g);
+        g.connect(actx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+
+      // A gentle, slow pentatonic loop — something that fades into the background
+      const notes = [130.81, 164.81, 196.00, 220.00, 261.63, 329.63, 392.00];
+      const loopDuration = 24; // seconds per loop
+      const now = actx.currentTime;
+
+      function scheduleLoop(offset) {
+        for (let i = 0; i < notes.length; i++) {
+          const t = offset + i * (loopDuration / notes.length);
+          playNote(notes[i], t, loopDuration / notes.length + 1.5, 0.025);
+        }
+      }
+
+      // Schedule a few loops ahead
+      for (let l = 0; l < 20; l++) {
+        scheduleLoop(now + l * loopDuration);
+      }
+
+      // Re-schedule periodically (every ~10 loops)
+      const rescheduleMs = loopDuration * 10 * 1000;
+      const interval = setInterval(() => {
+        if (actx.state === 'closed') { clearInterval(interval); return; }
+        scheduleLoop(actx.currentTime + loopDuration * 18);
+      }, rescheduleMs);
+
+      return { ctx: actx, cleanup: () => { clearInterval(interval); actx.close(); } };
+    } catch(e) {
+      return null;
+    }
+  }
+
+  let ambient = null;
+
+  btn.addEventListener('click', () => {
+    if (playing) {
+      if (ambient) { ambient.cleanup(); ambient = null; }
+      playing = false;
+      btn.classList.remove('playing');
+      btn.textContent = '♪';
+      btn.title = '音乐已关闭';
+    } else {
+      // Respect autoplay policy — create on user gesture
+      ambient = createAmbientAudio();
+      if (ambient) {
+        playing = true;
+        btn.classList.add('playing');
+        btn.textContent = '♫';
+        btn.title = '音乐播放中 — 点击关闭';
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
